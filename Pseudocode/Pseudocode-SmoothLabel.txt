@@ -1,0 +1,33 @@
+A very simple subclass of JLabel that enables bilinear
+interpolation. Interpolation is like antialiasing, but
+it works on raster graphics. This makes image labels
+look significantly better and removes the fuzzy edge
+effect.
+The standard JLabel should be used in preference to this
+for text
+
+Constructor
+Name: Sam Haskins
+Date: 12/11/2018
+Inputs: An image to make a label for
+Outputs: A SmoothLabel for that image
+Description:
+    Supers with image to construct a JLabel for the image
+Begin
+    Super with image
+End
+
+Method paintComponent
+Name: Sam Haskins
+Date: 12/11/2018
+Inputs: A Graphics object to paint to
+Outputs: Enables bilinear interpolation, then supers to paint
+Description:
+    Enables bilinear interpolation on the Graphics,
+    then uses the JLabel's implementation to paint
+Begin
+    // No more fuzzy edges on images
+    Invoke g->setRenderingHint with RenderingHints->KeyInterpolation and
+                                    RenderingHints->ValueInterpolationBilinear
+    Super with g
+End

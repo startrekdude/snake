@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>Snake.jar</jar>
+  <outfile>C:\Eclipse\workspace\Snake\dist\appdir\Snake.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://www.oracle.com/technetwork/java/javase/downloads/java-archive-javase10-4425482.html</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>C:\Eclipse\workspace\Snake\dist\icon.ico</icon>
+  <singleInstance>
+    <mutexName>Snake8847039</mutexName>
+    <windowTitle>Snake</windowTitle>
+  </singleInstance>
+  <jre>
+    <path>jre-10.0.2</path>
+    <bundledJre64Bit>true</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>10.0.2</minVersion>
+    <maxVersion>10.0.99</maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+  </jre>
+  <versionInfo>
+    <fileVersion>1.2.0.0</fileVersion>
+    <txtFileVersion>1.2</txtFileVersion>
+    <fileDescription>Snake Game</fileDescription>
+    <copyright>(C) Sam Haskins 2018</copyright>
+    <productVersion>1.2.0.0</productVersion>
+    <txtProductVersion>1.2</txtProductVersion>
+    <productName>Snake Game</productName>
+    <companyName>Sam Haskins</companyName>
+    <internalName>Snake</internalName>
+    <originalFilename>Snake.exe</originalFilename>
+    <trademarks></trademarks>
+    <language>ENGLISH_US</language>
+  </versionInfo>
+</launch4jConfig>

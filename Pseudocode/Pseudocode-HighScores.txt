@@ -1,0 +1,172 @@
+The high scores component
+Responsible for receiving, displaying, saving, and loading high scores
+Uses a JEditorPane to display the scores list, but wraps it in a JScrollPane
+to allow scrolling
+
+private JEditorPane display
+
+// The list of scores
+private List of Integer scores
+
+Constructor
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: Indirectly reads from the .snakescores file
+Outputs: Creates a new HighScores, displaying the current high scores
+Description:
+    Creates a new JEditorPane and adds it to this
+    Loads the existing scores using the load methods
+    Pushes 5 zeros to fix a corrupt database and then saves
+    Displays the scores
+Begin
+    // Fill all available space
+    Invoke setLayout with a new BorderLayout
+    
+    // Load the high scores font
+    // if this fails, fallback to sans-serif
+    Declare font, a Font
+    Try to:
+        Let is, an InputStream, be getClass->getClassLoader->getResourceAsStream with "BreeSerif-Regular.ttf"
+        Let font be (Font->createFont with Font->TruetypeFont and is)->deriveFont with 48
+        Invoke is->close
+    If that fails:
+        // Use the fallback
+        Let font be a new Font with "Sans Serif", Font->Plain, and 48
+    
+    // First, make the HTML displayer
+    Let display be a new JEditorPane Override:
+        paintComponent:
+                // Force antialiasing on because it makes everything look better
+                // Why Java doesn't do this by default is beyond me
+                Invoke g->setRenderingHint with RenderingHints->KeyTextAntialiasing and
+                                                RenderingHints->ValueTextAntialiasingOn
+                Super with g
+    Invoke display->setEditable with false
+    Invoke display->setContentType with "text/html"
+    Invoke display->putClientProperty with JEditorPane->HonorDisplayProperties and Boolean->True
+    Invoke display->putFont with font
+    
+    Invoke add with a new JScrollPane with display
+    
+    Let scores be a new ArrayList of Integer
+    
+    // First, load any existing scores
+    Invoke load
+    
+    // Push five zeros
+    Invoke pushScore with 0 and false
+    Invoke pushScore with 0 and false
+    Invoke pushScore with 0 and false
+    Invoke pushScore with 0 and false
+    Invoke pushScore with 0
+End
+
+Method pushScore
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: Adds a snake score to the HighScores, always saving
+Outputs: Whether the new score is a top-5 high score
+Description:
+    Uses the other pushScore overload to add the score and save
+Begin
+    Return pushScore with score and true
+End
+
+Method pushScore
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: The score to potentially add and whether to save or not
+Outputs: Maybe adds the score and maybe saves. Returns whether the list was updated
+Description:
+    Adds the score to the list, sorts the list, picks the first five, and saves
+    Returns whether an item was added to the list
+Begin
+    // Save the old scores so we can see if they changed
+    Let oldScores, a List of Integer, be a new ArrayList of Integer with scores
+    
+    // Add the new score
+    Invoke scores->add with score
+    
+    // Sort the scores
+    Let comparator, a Comparator of Integer, be
+        (i1, i2) -> i2 minus i1
+    Invoke Sorts->quick with scores, comparator, and Sorts->Forwards
+    
+    // Pick the first five
+    If scores->size is greater than 5:
+        Let scores be a new ArrayList of Integer with (scores->subList with 0 and 5)
+    
+    // Possibly save
+    If save is equal to true:
+        Invoke save
+    
+    // Update the GUI, but only if five scores have been established
+    // This will not be the case until the constructor completes
+    If scores->size if 5
+        Invoke display->setText with an HTML string built from scores
+    
+    // Return whether the list changed
+    // Snake uses this to play a different sound effect
+    Return the unary negation of oldScores->equals scores
+End
+    
+Method save
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: Uses the data in scores
+Outputs: Writes the scores to .snakescores
+Description:
+    Saves the user's high scores into .snakescores
+    On failure, displays a message
+Begin
+    // The file will be ".snakescores" in the user's home directory
+    // (should be in AppData, but that's not cross-platform :( )
+    Let path, a String, be (Paths->get with (System->getProperty with "user.home") and ".snakescores")->toString
+    
+    // If the file exists, delete it
+    Invoke (new File with path)->delete
+    
+    // Try to write the file. If this fails, tell the user
+    Try with writer, a PrintWriter, being a new PrintWriter with a new FileWriter with path:
+        Invoke scores->forEach with writer->println
+    If that fails:
+        Invoke JOptionPane->showMessageDialog with getParent, a message, "An error occurred",
+                                                   and JOptionPane->ErrorMessage
+    
+    // For windows systems, set the file as hidden
+    // The name starting with a "." will do this for linux and macos
+    // this is expected to fail on non-windows systems, do so silently
+    Try to:
+        Invoke Files->setAttribute with (Paths->get with path), "dos:hidden", Boolean->True,
+                                        and LinkOption->NoFollowLinks
+    If that fails:
+        Pass
+End
+
+Method load
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: Reads the .snakescores file into scores
+Outputs: Modifies scores
+Description:
+    Reads the entire snakescores file into scores
+    On failure, does nothing (the constructor will load zeros)
+Begin
+    // The file will be ".snakescores" in the user's home directory
+    // (should be in AppData, but that's not cross-platform :( )
+    Let path, a String, be (Paths->get with (System->getProperty with "user.home") and ".snakescores")->toString
+    
+    // Try to load the file. If this fails for any reason, we don't care...
+    // ...because the constructor will push zeros
+    Try with reader, a BufferedReader, being a new BufferedReader with a new FileReader with path:
+        Declare line, a String
+        While (Let line be reader->readLine) is not equal to null:
+            // Try to parse the line. If it fails, move on
+            Try to:
+                Invoke scores->add with Integer->parseInt with line
+            If that fails (NumberFormatException):
+                Continue
+    If that fails:
+        // Oh well, we can't load scores. The constructor pushes five zeros to reset
+        Pass
+End

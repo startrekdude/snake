@@ -1,0 +1,60 @@
+Provides a KeyEventDispatcher that opens a URL in the user's web browser
+when they type the Konami Code; that is, up, up, down, down, left, right,
+left, right, b, a
+If opening the links fails, fails silently (no message)
+
+private String url
+
+// Track the Code
+private List of Integer code
+
+private static final List of Integer codeComplete is
+{VK_UP, VK_UP, VK_DOWN, VK_DOWN, VK_LEFT, VK_RIGHT, VK_LEFT, VK_RIGHT, VK_B, VK_A}
+
+Constructor
+Name: Sam Haskins
+Date: 12/7/2018
+Inputs: A URL to open when the konami code is typed
+Outputs: Creates a KonamiCode that opens the provided URL
+Description:
+    Creates a new KonamiCode with url equal to url
+Begin
+    // Check for null
+    If url is equal to null:
+        Throw a new NullPointerException
+    
+    Let this's url be url
+    Let code be a new ArrayList of Integer
+End
+
+Method dispatchKeyEvent
+Name: Sam Haskins
+Date: 12/7/2018
+Inputs: The key event to operate on
+Outputs: Opens url if the key is the last key of the Konami Code, otherwise does nothing
+Description:
+    Adds the new key press to code, clears it if not expected keypress, opens
+    URL when code is complete
+Begin
+    // Only operate on key presses or zero keys (?)
+    If e->getID is not equal to KeyEvent->KeyPressed or e->getKeyCode is equal to 0:
+        Return false
+    
+    // Add the key press to the list
+    Invoke code->add with e->getKeyCode
+    
+    // Make sure code matches so far; if not, clear it
+    For every index in code (i):
+        If (code->get with i)->equals with (codeComplete->get with i) is false:
+            Invoke code->clear
+            Break
+    
+    // The Code is complete
+    If codeComplete->size is equal to 10:
+        Invoke code->clear
+        Try to:
+            Invoke Desktop->getDesktop->browse with a new URI with url
+        If that fails:
+            Do nothing
+    Return false
+End

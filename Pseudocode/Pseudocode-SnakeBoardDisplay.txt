@@ -1,0 +1,190 @@
+Displays a Snake board, using a checkerboard green-lightgreen pattern and
+red for the apple
+Draws the snake tail separately from the board, with support for
+smooth animations via tickCount
+
+private static final Color APPLE is a new Color with (164, 0, and 0)
+private static final Color LIGHT_GREEN is a new Color with (144, 238, and 144)
+private static final Color GREEN is a new Color with (199, 220, and 119)
+prviate static final Color SNAKE is a new Color with (8, 103, and 232)
+
+public Snake game
+public int tickCount
+
+Method drawGrid
+Name: Sam Haskins
+Date: 12/8/2018
+Inputs: A Graphics to draw to, the grid cell size
+Outputs: Draws the grid background and the apple to the graphics
+Description:
+    Draws the grid background in a checkerboard green-lightgreen pattern
+    Draws the apple in red
+    Does not draw the snake's tail at all, these squares are treated as background
+Begin
+    // Iterate over every cell of the board
+    For every index 0 to 17 (i):
+        For every index 0 to 17 (j):
+            // Pick a color - apple is red, otherwise checkerboard
+            If game->board[i][j] is equal to SnakeCell->Apple:
+                Invoke g->setColor with APPLE
+            Otherwise If, (i modulo 2) is equal to (j modulo 2):
+                Invoke g->setColor with LIGHT_GREEN
+            Otherwise:
+                Invoke g->setColor with GREEN
+            
+            // Fill in the cell
+            Invoke g->fillRect with (j times sz), (i times sz), sz, and sz
+End
+
+Method drawSnakeTail
+Name: Sam Haskins
+Date: 12/8/2018
+Inputs: A Graphics to draw to and the cell size
+Outputs: Draws the snake's tail, in blue, to the graphics
+Description:
+    Draws the snake's tail using snakeTailShape in blue
+    Does smooth animations via animating the head and tail of the snake
+    using tickCount
+Begin
+    // Set the color
+    Invoke g->setColor with SNAKE
+    
+    // Go over every move in the tail
+    For every index in game->tail (i):
+        Let move, a SnakeMove, be game->tail->get with i
+        Declare shape, a Shape
+        
+        // Do smooth animations for the first item (the last tail) and the head
+        If i is equal to 0:
+            // For the last tail, we have to reverse where it's coming from
+            Let direction, a Direction, be move->direction
+            Let nextDirection, a Direction, be (game->tail->get with 1)->direction
+            
+            // Reverse the direction, but only if it's
+            If direction is equal to Direction->Left:
+                Let direction be Direction->Right
+            Otherwise, If direction is equal to Direction->Right:
+                Let direction be Direction->Left
+            Otherwise, If direction is equal to Direction->Down:
+                Let direction be Direction->Up
+            Otherwise, If direction is equal to Direction->Up:
+                Let direction be Direction->Down
+            
+            // When animating this, always draw it straight
+            Let nextDirection be direction
+            
+            Let shape be snakeTailShape with sz, direction, nextDirection, and 20 minus tickCount
+        Otherwise, If i is equal to (game->tail->size minus 1):
+            // The head. Animate using the next move that would be made
+            Let shape be snakeTailShape with sz, move->direction, game->getNextMove->direction,
+                                             and tickCount
+        Otherwise:
+            // Not one of the snake's extremities; draw the entire tail-piece
+            Let shape be snakeTailShape with sz, move->direction,
+                                             (game->tail->get with i plus 1)->direction, and 20
+        
+        // Okay, we have the snake tail shape. Move it to the desired location
+        Let transform, an AffineTransform, be AffineTransform->getTranslateInstance with
+            (move->row times sz), (move->column times sz)
+        
+        Let shape be transform->createTransformedShape with shape
+        
+        Invoke g->fill with Shape
+End
+
+Method snakeTailShape
+Name: Sam Haskins
+Date: 12/8/2018
+Inputs: The cell size, the direction the tail is coming from, the direction the tail is going to, the percent
+Outputs: Returns a shape representing a snake tail segment
+Description:
+    Creates a snake tail segment, either straight or a corner
+    Only goes as far as specified by percent - this is used for animations
+Begin
+    // The tail shape
+    Let path, a GeneralPath, be a new GeneralPath
+    
+    // Calculate the padding/margin value
+    Let ps, an int, be sz divided by 6
+    Let psz, an int, be sz minus ps
+    
+    // The starting point of the percent-controlled rectangle
+    // Zero, except for corners
+    Let sp, an int, be 0
+    
+    If from is not equal to to:
+        Let sp be sz divided by 6
+        
+        // A corner, draw the corner bits
+        If from is equal to Direction->Right:
+            Invoke path->moveTo with 0 and ps
+            Invoke path->lineTo with ps and ps
+            Invoke path->lineTo with ps and psz
+            Invoke path->lineTo with 0 and psz
+        Otherwise, If from is equal to Direction->Left:
+            Invoke path->moveTo with sz and ps
+            Invoke path->lineTo with psz and ps
+            Invoke path->lineTo with psz and psz
+            Invoke path->lineTo with sz and psz
+        Otherwise, If from is equal to Direction->Up:
+            Invoke path->moveTo with ps and sz
+            Invoke path->lineTo with ps and psz
+            Invoke path->lineTo with psz and psz
+            Invoke path->lineTo with psz and sz
+        Otherwise, If from is equal to Direction->Down:
+            Invoke path->moveTo with ps and 0
+            Invoke path->lineTo with ps and ps
+            Invoke path->lineTo with psz and ps
+            Invoke path->lineTo with psz and 0
+    
+    // The percent factor, i.e. how far it should go
+    Let pf, a double, be Math->max with ((percent divided by 20) times sz) and sp
+    
+    // The tail should take up two-third of the cell, leaving
+    // a third of padding evenly distributed on both sides
+    If to is equal to Direction->Right:
+        // Right
+        Invoke path->moveTo with sp and ps
+        Invoke path->lineTo with pf and ps
+        Invoke path->lineTo with pf and psz
+        Invoke path->lineTo with sp and psz
+    Otherwise, If to is equal to Direction->Left:
+        // Left
+        Invoke path->moveTo with (sz minus sp) and ps
+        Invoke path->lineTo with (sz minus pf) and ps
+        Invoke path->lineTo with (sz minus pf) and psz
+        Invoke path->lineTo with (sz minus sp) and psz
+    Otherwise, If to is equal to Direction->Up:
+        // Up
+        Invoke path->moveTo with ps and (sz minus sp)
+        Invoke path->lineTo with ps and (sz minus pf)
+        Invoke path->lineTo with psz and (sz minus pf)
+        Invoke path->lineTo with psz and (sz minus sp)
+    Otherwise, If to is equal to Direction->Down:
+        // Down
+        Invoke path->moveTo with ps and sp
+        Invoke path->lineTo with ps and pf
+        Invoke path->lineTo with psz and pf
+        Invoke path->lineTo with psz and sp
+    
+    Return path
+End
+
+Method paintComponent
+Name: Sam Haskins
+Date: 12/8/2018
+Inputs: A Graphics to draw to
+Outputs: Paints the current game state onto the graphics
+Description:
+    Paints an 18-by-18 grid representing the current
+    game state. Uses drawGrid and drawSnakeTail
+Begin
+    // Calculate the grid cell size
+    Let sz, an int, be getWidth divided by 18
+    
+    // Draw the grid (background and apple)
+    Invoke drawGrid with g and sz
+    
+    // Draw the snake's tail
+    Invoke drawSnakeTail with g and sz
+End

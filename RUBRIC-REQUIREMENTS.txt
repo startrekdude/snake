@@ -1,0 +1,107 @@
+A list of all the rubric requirements Snake meets,
+associated with the specific unit that meets them.
+
+This file is split into two sections: a section for
+Evidence of Learning (i.e. Above and Beyond)
+considerations and a section detailing the normal
+rubric requirements.
+
+Evidence of Learning (Above and Beyond):
+Snake, in addition to qualities mentioned on the rubric, has the following extras:
+    - An easter egg (see KonamiCode and SnakeGame)
+    - Audio (see AudioUtils and SnakeGame)
+    - An icon and about dialog (see AboutDialog, ImageUtils, and SnakeGame)
+    - Quick sort rather than bubble sort (see Sorts and HighScores)
+    - The high resolution timer component:
+        - Written in both Java and C
+        - Used to enable high resolution timers on Windows
+        - Demonstrates evidence of learning C and JNI
+        - (see README-HRT, HighResolutionTimer, and highresolutiontimer.c)
+    - Loads a custom font, Bree Serif (see HighScores)
+    - Subclasses JLabel to enable interpolation (see SmoothLabel)
+    - Evidence of learning HTML (see HighScores)
+    - Smooth animations for the snake (see SnakeBoardDisplay and SnakeGame)
+    - Option to set difficulty (see SnakeDifficulty and SnakeGame)
+    - Modularity
+
+
+Rubric Requirements (targeting Level 5):
+
+Algorithm Design:
+-----------------
+Reads and writes files successfully using descriptive try/catch blocks
+HighScores->load and HighScores->save
+
+Searches an array using Binary search and Sequential search appropriately
+SnakeBoardDisplay->drawGrid implements, among other things, a sequential
+search for SnakeCell->Apple in which the result is used immediately.
+
+Successfully adds and removes from an ArrayList
+HighScores->pushScore and KonamiCode->dispatchKeyEvent
+
+Successfully implements a sorting algorithm using an ArrayList
+HighScores->pushScore and Sorts->quick
+
+
+Data Types and Expressions:
+---------------------------
+Implemented a user defined class
+SnakeGame, SnakeDifficulty, SnakeBoardDisplay, HighScores, KonamiCode,
+AboutDialog, Snake, and SnakeMove
+
+Comparisons implemented
+Many comparisons are performed in Snake; it would not be a useful
+exercise to list all of them. Examples include Sorts->quick,
+HighScores->pushScore, SnakeBoardDisplay->drawGrid,
+SnakeGame->dispatchKeyEvent, and Snake->advanceGame
+
+Datatype conversions implemented
+HighScores->load
+SnakeGame->dispatchKeyEvent could be described as converting
+a KeyEvent to a Direction
+
+User Input implemented
+SnakeDifficulty, SnakeGame, AboutDialog, and KonamiCode
+
+Successfully implements a collection of datatypes:
+ArrayList, arrays, stacks, queues
+    - ArrayList: HighScores and KonamiCode
+    - Arrays: Snake
+    - Stacks: Used implicitly for function calls throughout the
+              program execution
+              The double-ended queue used in Snake can also function
+              like a Stack.
+    - Queues: Snake
+
+
+Software Development:
+---------------------
+The Software Development section of the rubric is beyond
+the scope of this file. Please consult the Unit and System
+Test Reports I've submitted.
+
+
+Modular Design:
+---------------
+Implements a GUI
+HighScores, SnakeBoardDisplay, SnakeDifficulty, AboutDialog, and SnakeGame
+
+Uses an abstract class
+SnakeGame uses the abstract classes ComponentAdapter and WindowAdapter
+(see SnakeGame-><ctor>)
+
+Uses method overloading/overriding
+SnakeBoardDisplay, KonamiCode, SmoothLabel, and SnakeGame
+
+Implements a super/subclass relationship
+HighScores, SnakeBoardDisplay, SnakeDifficulty, AboutDialog, SmoothLabel,
+and SnakeGame
+
+Uses an Abstract Data Type (Stack, Queue, etc.)
+Snake uses a Queue (a double-ended queue, or Deque, is a Queue)
+
+
+Code Maintenance:
+-----------------
+To score on code maintenance, please consult the Pseudocode/ and src/
+directories.

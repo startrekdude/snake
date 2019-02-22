@@ -1,0 +1,20 @@
+A simple structure representing the snake's move
+The snake's tail is a queue of SnakeMove structures
+
+public int row
+public int column
+public Direction direction
+
+Constructor
+Name: Sam Haskins
+Date: 12/7/2018
+Inputs: The row, column, and direction of the SnakeMove
+Outputs: Creates a new SnakeMove with the provided row, column, and direction
+Description:
+    Creates a new SnakeMove, filling in all the fields with
+    information provided by the consumer
+Begin
+    Let this's row be row
+    Let this's column be column
+    Let this's direction be direction
+End

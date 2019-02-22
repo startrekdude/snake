@@ -1,0 +1,60 @@
+This class implements various sorting algorithms and other useful functions
+related to sorting. It currently contains:
+    - A bubble sort
+
+public static final int FORWARDS is 1
+public static finat int BACKWARDS is -1
+
+Method quick
+Name: Sam Haskins
+Date: 11/12/2018
+Generics: T, no special requirements but accepts a Comparator<T> as an argument
+Inputs: A List<T> to sort, a Comparator<T> to compare with, and an int order
+Outputs: Sorts the list
+Description:
+    Validates the order parameter to be FORWARDS or BACKWARDS, then
+    invokes the real bubble sort over 0 to items.size - 1
+Begin
+    If order is not equal to FORWARDS and order is not equal to BACKWARDS:
+        Throw an IllegalArgumentException
+    Invoke quick with items, comparator, order, 0, and items->size - 1
+End
+
+Method quick
+Name: Sam Haskins
+Date: 11/12/2018
+Generics: T, no special requirements but accepts a Comparator<T> as an argument
+Inputs: A List to sort, a Comparator to compare with, an order, and the region to sort (low to high)
+Outputs: Sorts the region of the list by sorting around a pivot then invoking recusively on both sides
+Description:
+    Does not validate order, as this is private the other overload does that
+    If low < high (the sublist we're sorting is more than one element)
+    Swap around the pivot, finding an appropriate partition index
+    Recursively invoke with partition index to high and low to partition index
+    Inspired by https://www.geeksforgeeks.org/quick-sort/
+Begin
+    // The sublist has more than one element
+    If low is less than high:
+        Let pivot, a T, be items->get with high
+        // The partition index, used in the recursive call
+        Let pi, an int, be low - 1
+        
+        // Find out-of-order elements between low and high and swap if required
+        For all indices between low and high (j):
+            If (order multiplied by comparator->compare with (items->get with i) and pivot) is less than 0:
+                Increment pi
+                
+                Let temp, a T, be items->get pi
+                Invoke items->set with pi and (items->get with j)
+                Invoke items->set with j and temp
+        
+        // Swap the parition index and the highest index
+        Increment pi
+        Let temp, a T, be items->get with pi
+        Invoke items->set with pi and (items->get with high)
+        Invoke items->set with high and temp
+        
+        // To understand recursion, you must first understand recursion
+        Invoke quick with items, comparator, order, low, and pi minus 1
+        Invoke quick with items, comparator, order, pi plus 1, and high
+End

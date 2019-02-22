@@ -1,0 +1,94 @@
+A dialog that lets the user select the difficulty (speed) of their snake game
+Possible values are easy, normal, and hard
+
+// Give the game speed in milliseconds to the consumer
+public Consumer of Integer onComplete
+
+private ButtonGroup selection
+
+Constructor
+Name: Sam Haskins
+Date: 12/7/2018
+Inputs: A Frame to modal for
+Outputs: Creates a SnakeDifficulty dialog that modals for the frame
+Description:
+    Creates a SnakeDifficulty dialog for the specified frame
+    The user can select easy, normal, and hard and the game tick
+    interval (in milliseconds) will be returned
+Begin
+    // Make the dialog modal
+    Super with parent and Dialog->ModalityType->ApplicationModal
+    
+    // Basic properties
+    Invoke setTitle with "Select Snake Difficulty"
+    Invoke setSize with 300 and 200
+    Invoke setLocationRelativeTo with parent
+    Invoke setResizable with false
+    
+    // The user closes this dialog by clicking select, not using the x button
+    Invoke setDefaultCloseOperation with JDialog->DoNothingOnClose
+    
+    // Make the vertical layout
+    Let root, a JPanel, be a new JPanel
+    Invoke root->setLayout with a new BoxLayout with (root and BoxLayout->YAxis)
+    Invoke getContentPane->add with root
+    
+    // Add the dialog's title
+    Let title, a JLabel, be a new JLabel with "Select Difficulty"
+    Invoke title->setFont with a new Font with ("Sans", Font->Bold, and 18)
+    Invoke title->setAlignmentX with JComponent->CenterAlignment
+    Invoke root->add with title
+    
+    // Create the choices
+    Let selection be a new ButtonGroup
+    
+    Let easy, a JRadioButton, be a new JRadioButton with "Easy"
+    Invoke easy->setActionCommand with "easy"
+    Invoke easy->setAlignmentX with JComponent->CenterAlignment
+    Invoke selection->add with easy
+    Invoke root->add with easy
+    
+    Let normal, a JRadioButton, be a new JRadioButton with "Normal"
+    Invoke normal->setActionCommand with "normal"
+    Invoke normal->setSelected with true
+    Invoke normal->setAlignmentX with JComponent->CenterAlignment
+    Invoke selection->add with normal
+    Invoke root->add with normal
+    
+    Let hard, a JRadioButton, be a new JRadioButton with "Hard"
+    Invoke hard->setActionCommand with "hard"
+    Invoke hard->setAlignmentX with JComponent->CenterAlignment
+    Invoke selection->add with hard
+    Invoke root->add with hard
+    
+    // Add the Select button
+    Let select, a JButton, be ActionUtils->button with "Select" and this->complete
+    Invoke select->setAlignmentX with JComponent->CenterAlignment
+    Invoke root->add with select
+End
+
+Method complete
+Name: Sam Haskins
+Date: 12/7/2018
+Inputs: The user's choice of difficulty
+Outputs: Invokes onComplete with the appropriate game tick interval
+Description:
+    Gives the game tick interval for the selected difficulty level
+    to onComplete, then closes the dialog
+Begin
+    // Only bother if the consumer is interested
+    If onComplete is not equal to null:
+        Let difficulty, a String, be selection->getSelection->getActionCommand
+        
+        // Return the correct game tick interval in milliseconds
+        If difficulty->equals with "easy" is equal to true:
+            Invoke onComplete->accept with 15
+        Otherwise, If difficulty->equals with "normal" is equal to true:
+            Invoke onComplete->accept with 8
+        Otherwise:
+            Invoke onComplete->accept with 5
+    
+    // Close the dialog
+    Invoke setDefaultCloseOperation with JDialog->DisposeOnClose
+    Invoke dispatchEvent with a new WindowEvent with (this and WindowEvent->WindowClosing)
+End

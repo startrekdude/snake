@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+    <Product Name='Snake' Manufacturer='Sam Haskins'
+        Id='B1948964-1951-4027-9FB5-209C5753EA98' 
+        UpgradeCode='1E0FDBED-5A06-4802-9563-F5CEFE39512D'
+        Language='1033' Codepage='1252' Version='1.2'>
+		
+		<Package Id='*' Description="Sam Haskins's Snake 1.2 Installer"
+			Manufacturer='Sam Haskins' InstallerVersion='200' Languages='1033'
+			Compressed='yes' SummaryCodepage='1252' />
+		<Media Id="1" Cabinet="Snake.cab" EmbedCab="yes" />
+		
+		<Directory Id='TARGETDIR' Name='SourceDir'>
+			<Directory Id="ProgramFiles64Folder">
+				<Directory Id="INSTALLDIR" Name="Snake" />
+			</Directory>
+			
+			<Directory Id="ProgramMenuFolder" Name="Programs" />
+			<Directory Id="DesktopFolder" Name="Desktop" />
+		</Directory>
+		
+		<ComponentGroup Id="SnakeProgramComplete">
+			<!-- defined in SnakeProgram.wxs, made by heat -->
+			<ComponentGroupRef Id="SnakeProgram" />
+			
+			<Component Id="DesktopShortcut" Directory="DesktopFolder"
+				Guid="8DB753D8-5FF9-43AF-A9B3-2893C1A4CDF9">
+				<Shortcut Id="SnakeDesktopShortcut"
+					Name="Snake"
+					Target="[#fil6C0BFEC26FB6500F9E5E8816D6DE47EB]"
+					Icon="SnakeIcon" IconIndex="0"
+					WorkingDirectory="INSTALLDIR" />
+				<RegistryValue Root="HKCU" Key="Software\Snake8847039"
+					Name="DesktopKeyPath" Type="integer" Value="1"
+					KeyPath="yes" />
+			</Component>
+						
+			<Component Id="StartShortcut" Directory="ProgramMenuFolder"
+				Guid="370AA108-C425-4DF7-A18B-63FA938D8E8F">
+				<Shortcut Id="SnakeStartShortcut"
+					Name="Snake"
+					Target="[#fil6C0BFEC26FB6500F9E5E8816D6DE47EB]"
+					Icon="SnakeIcon" IconIndex="0"
+					WorkingDirectory="INSTALLDIR" />
+				<RegistryValue Root="HKCU" Key="Software\Snake8847039"
+					Name="StartKeyPath" Type="integer" Value="1" KeyPath="yes" />
+			</Component>
+			
+		</ComponentGroup>
+		
+		<Feature Id="Snake" Level="1" ConfigurableDirectory="INSTALLDIR">
+			<ComponentGroupRef Id="SnakeProgramComplete" />
+		</Feature>
+		
+		<Icon Id="SnakeIcon" SourceFile="Snake.exe" />
+		
+		<Property Id="ARPPRODUCTICON" Value="SnakeIcon" Secure="yes" />
+		<Property Id="ARPNOREPAIR" Value="yes" Secure="yes" />
+		
+		<Condition Message="Administrator privileges are required to install Snake.">
+			Privileged
+		</Condition>
+		<Condition Message="Snake installer is only supported on 64-bit versions of Windows 7 or greater.">
+			VersionNT64 >= 601
+		</Condition>
+		
+		<!-- Let the user launch Battleship after the install completes -->
+		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+			Value="Launch Snake" />
+		<Property Id="WixShellExecTarget"
+			Value="[#fil6C0BFEC26FB6500F9E5E8816D6DE47EB]" />
+		<CustomAction Id="LaunchApplication" BinaryKey="WixCA"
+			DllEntry="WixShellExec" Impersonate="yes" />
+		
+		<!-- The installer user interface -->
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+		<UI>
+			<UIRef Id="WixUI_InstallDir" />
+			
+			<Publish Dialog="WelcomeDlg"
+				Control="Next"
+				Event="NewDialog"
+				Value="InstallDirDlg"
+				Order="5">1</Publish>
+			<Publish Dialog="InstallDirDlg"
+				Control="Back"
+				Event="NewDialog"
+				Value="WelcomeDlg"
+				Order="5">1</Publish>
+			
+			<Publish Dialog="ExitDialog"
+				Control="Finish"
+				Event="DoAction"
+				Value="LaunchApplication">
+				WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and not Installed
+			</Publish>
+		</UI>
+		
+		<!-- Tell user that TARGETDIR *must* be set to do an administrative install -->
+		<CustomAction Id="CheckTARGETDIR"
+			Error="TARGETDIR must be set to perform an administrative install" />
+		
+		<AdminExecuteSequence>
+			<Custom Sequence="1" Action="CheckTARGETDIR" />
+		</AdminExecuteSequence>
+	</Product>
+</Wix>

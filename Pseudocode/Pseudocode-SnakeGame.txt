@@ -1,0 +1,308 @@
+The Snake Game's Graphical User Interface. Acts as a container for the board display
+and high scores, and also accepts user input.
+Advances the game when applicable in realtime.
+Uses the Snake class to store state and perform the simulation
+
+private Snake game
+private int tickCount
+prviate Boolean continueGame
+
+// The game clock, set based on difficulty
+private Timer gameClock
+
+private JPanel root
+
+// The UI elements of Snake
+private SnakeBoardDisplay boardDisplay
+private HighScores scores
+
+Constructor
+Name: Sam Haskins
+Date: 12/7/2018
+Inputs: None
+Outputs: Makes a new SnakeGame, setting up all of UI elements and event handlers
+Description:
+    Creates a new SnakeGame, making all the UI elements and event handlers
+    This includes a handler for keypresses
+Begin
+    // The basic window properties
+    Invoke setTitle with "Snake"
+    Invoke setSize with 900 and 675
+    
+    // Load an icon (see THIRD-PARTY.txt)
+    Invoke setIconImage with ImageUtils->load with ("icon.png")
+    
+    // When shown, ask for the difficulty
+    Invoke addComponentListener with a new ComponentAdapter with:
+        componentShown ->
+            // We have to enable high resolution timers now, too
+            Invoke HighResolutionTimer->enable
+            selectDifficulty
+    
+    // When the window closes, we have to disable high-resolution timers
+    // considering the user's battery life
+    Invoke addWindowListener with a new WindowAdapter with:
+        windowClosing -> HighResolutionTimer->disable
+    
+    // Add the key event handler to set the snake direction
+    Let manager, a KeyboardFocusManager, be KeyboardFocusManager->getCurrentKeyboardFocusManager
+    Invoke manager->addKeyEventDispatcher with this
+    
+    // Add the easter egg
+    Invoke manager->addKeyEventDispatcher with a new KonamiCode with "https://www.youtube.com/watch?v=32nlxQOe3tw"
+    
+    // Create the menu
+    Let menu, a JMenuBar, be a new JMenuBar
+    
+    // Snake
+    Let snake, a JMenu, be a new JMenu with "Snake"
+    Invoke snake->add with ActionUtils->menu with ("Start new game" and this->startNewGame)
+    Invoke snake->add with ActionUtils->menu with ("Select difficulty" and this->selectDifficulty)
+    Invoke snake->add with ActionUtils->menu with ("Exit" and this->exit)
+    Invoke menu->add with snake
+    
+    // Help
+    Let help, a JMenu, be a new JMenu with "Help"
+    Invoke help->add with ActionUtils->menu with ("Help" and this->help)
+    Invoke help->add with ActionUtils->menu with ("About" and this->about)
+    Invoke menu->add with help
+    
+    Invoke setJMenuBar with menu
+    
+    // Make the actual game object
+    Let game be a new Snake
+    Let tickCount be 0
+    Let continueGame be true
+    
+    // Create the game clock
+    Let gameClock be a new Timer with 1 and
+        (e) -> Invoke gameTick
+    
+    // Create the display, using a custom layout (see doLayout)
+    Let root be a new JPanel
+    Invoke root->setLayout with null
+    Invoke getContentPane->add with root
+    
+    // Create the snake board display
+    Let boardDisplay be a new SnakeBoardDisplay
+    Let boardDisplay->game be game
+    Invoke root->add with boardDisplay
+    
+    // Make the high scores display
+    // (the constructor loads previous scores from a file)
+    Let scores be a new HighScores
+    Invoke root->add with scores
+    
+    // Tell Swing to use doCustomLayout as the layout manager; this is relevant on resize
+    Invoke addComponentListener with a new ComponentAdapter with:
+        componentResized -> doCustomLayout
+End
+
+Method help
+Name: Sam Haskins
+Date: 12/17/2018
+Inputs: None
+Outputs: Displays the user guide PDF; if this fails, allows the user to download Adobe Reader
+Description:
+    Uses Desktop->open to open "Snake-Guide.pdf" from the same directory
+    If this fails, asks the user if they'd like to download Adobe Reader, and, if so,
+    opens Adobe's web site
+Begin
+    Let desktop, a Desktop, be Desktop->getDesktop
+    Try to:
+        // Make sure the user guide exists
+        Let guide, a File, be a new File with "Snake-Guide.pdf"
+        If guide->isFile is equal to false:
+            Invoke JOptionPane->showMessageDialog with this, a message, "File not found",
+                                                       and JOptionPane->WarningMessage
+            Return
+        
+        // The guide exists; try to open it
+        Invoke desktop->open with guide
+    If that fails:
+        // The user must not have an application to open PDFs - offer to download adobe reader
+        Let choice, an int, be JOptionPane->showConfirmDialog with this, a message, "Download PDF reader?",
+                                                                   and JOptionPane->YesNoOption
+        If choice is equal to JOptionPane->YesOption:
+            Try to:
+                Invoke desktop->browse with a new URI with 
+                    "https://get.adobe.com/reader/completion/?installer=Reader_DC_2019.008.20081_English_for_Windows&stype=7765&direct=true&standalone=1" 
+            If that fails:
+                // A platform without a browser. Interesting. Tell the user
+                Invoke JOptionPane->showMessageDialog with this, a message, "An error occurred",
+                                                           and JOptionPane->ErrorMessage 
+End
+
+Method gameTick
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: None
+Outputs: Advances the animations or the game by one tick
+Description:
+    Receives events from the gameClock
+    Updates animations in the SnakeBoardDisplay every tick
+    Advances the game every 20 ticks
+Begin
+    Increment tickCount
+    
+    // Advance the game or merely update animations?
+    If tickCount is equal to 20:
+        // Advance the game
+        Let result, a SnakeMoveResult, be game->advanceGame
+        
+        // If we ate an apple, play the sound
+        If result is equal to SnakeMoveResult->AteApple:
+            Invoke AudioUtils->play with "apple.wav"
+        
+        Let continueGame be (result is not equal to SnakeMoveResult->Died)
+        If continueGame is equal to false:
+            // Try to add a high score
+            If scores->pushScore with game->tail->size is equal to true:
+                Invoke AudioUtils->play with "flourish.wav"
+                Invoke JOptionPane->showMessageDialog with this,
+                    (a new SmoothLabel with ImageUtils->loadIcon with "high_score.png")
+                    "High Score!!!", and JOptionPane->PlainMessage
+            Otherwise:
+                Invoke AudioUtils->play with "death.wav"
+            Invoke gameClock->stop
+        Otherwise:
+            Let tickCount be 0
+    
+    // Update the animations
+    Let boardDisplay->tickCount be tickCount
+    Invoke boardDisplay->repaint
+End
+
+Method dispatchKeyEvent
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: A KeyEvent to process
+Outputs: Sets the direction of the Snake based on the key pressed
+Description:
+    For every arrow key press event, sets the Snake's direction
+Begin
+    // Only take action for key presses
+    If e->getID is not equal to KeyEvent->KeyPressed:
+        Return false
+    
+    If continueGame is equal to true:
+        Invoke gameClock->start
+    Otherwise, If e->getKeyCode is equal to KeyEvent->VkSpace:
+        // If the user lost and they press space, start a new game
+        // - just a little keyboard shortcut
+        Invoke startNewGame
+    
+    // Set the direction
+    If e->getKeyCode is equal to KeyEvent->VkLeft:
+        Invoke game->setDirection with Direction->Left
+    Otherwise, If e->getKeyCode is equal to KeyEvent->VkRight:
+        Invoke game->setDirection with Direction->Right
+    Otherwise, If e->getKeyCode is equal to KeyEvent->VkUp:
+        Invoke game->setDirection with Direction->Up
+    Otherwise, If e->getKeyCode is equal to KeyEvent->VkDown:
+        Invoke game->setDirection with Direction->Down
+    
+    Return false
+End
+
+Method selectDifficulty
+Name: Sam Haskins
+Date: 12/7/2018
+Inputs: The desired difficulty, from the user
+Outputs: When the user selects the difficulty, setDelay will be invoked
+Description:
+    Uses a SnakeDifficulty dialog to select the game's difficulty (speed)
+    When the user makes the selection, control will flow to setDelay
+Begin
+    // Pause the game if one is in progress - don't want the user
+    // to lose while setting the difficulty!
+    Invoke gameClock->stop
+    
+    // Create the dialog and hook up the event handler
+    Let dialog, a SnakeDifficulty, be a new SnakeDifficulty with this
+    Let dialog->onComplete be gameClock->setDelay
+    
+    // Show the dialog
+    Invoke dialog->setVisible with true
+End
+
+Method doCustomLayout
+Name: Sam Haskins
+Date: 12/7/2018
+Inputs: Calculates the layout for the board display and scores
+Outputs: Repositions the board display and scores
+Description:
+    Calculates a unit size, min(height, width/3)
+    Makes an (almost) 2-unit-size by 2-unit-size board display
+    and a unit-size by 2-unit-size scores list
+Begin
+    // Get the width and height
+    Let width, an int, be root->getWidth
+    Let height, an int, be root->getHeight
+    
+    // Get the unit size
+    Let sz, an int, be Math->min with (height divided by 3) and (height divided by 5)
+    
+    // Figure out where the UI elements start, to be centered horizontally
+    Let ix, an int, be (width minus (sz times 4)) divided by 2
+    
+    // Get the board width/height
+    Let boardSz, an int, be (sz times 3) minus 40
+    
+    // Place the board display
+    Invoke boardDisplay->setBounds with ix, 20, boardSz, and boardSz
+    
+    // Place the scores
+    Invoke scores->setBounds with ix plus boardSsz, 20, sz times 2, and boardSz
+    // After resizing, force a re-layout
+    Invoke scores->validate
+End
+
+Method startNewGame
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: None
+Outputs: Starts a new game; the game begins on key press
+Description:
+    Resets all state and starts a new game of Snake
+    The game will begin on the next key press
+Begin
+    Let game be a new Snake
+    Let tickCount be 0
+    Let continueGame be true
+    
+    // Update the board display
+    Let boardDisplay->game be game
+    Let boardDisplay->tickCount be tickCount
+    Invoke boardDisplay->repaint
+End
+
+Method about
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: None
+Outputs: Shows an about dialog
+Description:
+    Invoked by Help -> About. Shows an AboutDialog for Snake
+Begin
+    // Opening the about dialog pauses the game
+    Invoke gameClock->stop
+    
+    // Create the dialog
+    Let dialog, an AboutDialog, be a new AboutDialog with this, (ImageUtils->loadIcon with "icon.png"),
+                                                          "Snake", a description, "Sam Haskins",
+                                                          "1.1", and extra information
+    // Show the dialog
+    Invoke dialog->setVisible with true
+End
+
+Method exit
+Name: Sam Haskins
+Date: 12/9/2018
+Inputs: None
+Outputs: Immediatly exits Snake
+Description:
+    Posts a Window Closing message to the queue, causing Snake to exit
+Begin
+    Invoke dispatchEvent with a new WindowEvent with (this and WindowEvent->WindowClosing)
+End

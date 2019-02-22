@@ -1,0 +1,84 @@
+A part-Java, part-C component that enables high resolution timers
+on Windows. Please read README-HRT for the rationale and details.
+
+private static Boolean isWindows
+
+Static Initializer
+Name: Sam Haskins
+Date: 12/10/2018
+Inputs: None
+Outputs: On Windows platforms, tries to load the native library
+Description:
+    If the platform is Windows, loads the native
+    highresolutiontimer.dll library. If this fails, tells the
+    user and exits.
+Begin
+    // This is only relevant on Windows
+    Let osName, a String, be System->getProperty with "os.name"
+    Let isWindows be (osName->toLowerCase->indexOf with "win") is greater than or equal to 0
+    If isWindows is equal to true:
+        Try to:
+            // Try to load the native code
+            Invoke System->loadLibrary with "highresolutiontimer"
+        If that fails:
+            // Oh well. We can't proceed without the native library
+            // due to our inability to invoke Win32 functions from Java
+            Invoke JOptionPane->showMessageDialog with null, a message,
+                                                       "An error occurred",
+                                                       and JOptionPane->ErrorMessage
+            Invoke System->exit with -1
+End
+
+Native Method timeBeginPeriod
+Name: Sam Haskins
+Date: 12/10/2018
+Language: C
+Inputs: The requested timer resolution
+Outputs: Calls the Win32 method of the same name to request a high resolution timer
+Description:
+    Read README-HRT for rationale
+    Sets the System Timer Resolution to a specified value
+Begin
+    Return timeBeginPeriod<winmm> with uPeriod
+End
+
+Native Method timeEndPeriod
+Name: Sam Haskins
+Date: 12/10/2018
+Language: C
+Inputs: The previously-set timer value
+Outputs: Releases the process' hold on the System Timer Resolution
+Description:
+    Read README-HRT for rationale
+    Unsets the System Timer Resolution
+Begin
+    Return timeEndPeriod<winmm> with uPeriod
+End
+
+Method enable
+Name: Sam Haskins
+Date: 12/10/2018
+Inputs: None
+Outputs: On Windows, enables support for high resolution timers
+Description:
+    On Windows, invokes timeBeginPeriod 1 to enable high resolution timers
+    On other platforms, does nothing
+Begin
+    If isWindows is equal to true:
+        // Set high resolution timers
+        Invoke timeBeginPeriod with 1
+End
+
+Method disable
+Name: Sam Haskins
+Date: 12/10/2018
+Inputs: None
+Outputs: On Windows, disables support for high resolution timers
+Description:
+    On Windows, invokes timeEndPeriod 1 to disable high resolution timers
+    On other platforms, does nothing
+Begin
+    If isWindows is equal to true:
+        // Unset high resolution timers
+        Invoke timeEndPeriod with 1
+End
