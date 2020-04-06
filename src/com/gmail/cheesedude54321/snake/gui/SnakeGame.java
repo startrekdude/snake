@@ -16,6 +16,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URI;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -108,6 +109,12 @@ public final class SnakeGame extends JFrame implements KeyEventDispatcher {
         JMenu snake = new JMenu("Snake");
         snake.add(ActionUtils.menu("Start new game", this::startNewGame));
         snake.add(ActionUtils.menu("Select difficulty", this::selectDifficulty));
+        
+        // The mute menu
+        JCheckBoxMenuItem muteMenu = new JCheckBoxMenuItem("Mute");
+        muteMenu.addItemListener(e -> AudioUtils.mute = muteMenu.isSelected());
+        snake.add(muteMenu);
+        
         snake.add(ActionUtils.menu("Exit", this::exit));
         menu.add(snake);
         
@@ -383,7 +390,7 @@ public final class SnakeGame extends JFrame implements KeyEventDispatcher {
         // Create the dialog
         AboutDialog dialog = new AboutDialog(this, ImageUtils.loadIcon("icon.png"),
                 "Snake", "Snake is a fun Java Swing game", "Sam Haskins",
-                "1.2", "The Snake icon is licensed from Icons8. For more" +
+                "1.2.1", "The Snake icon is licensed from Icons8. For more" +
                 " details, please see THIRD-PARTY.txt, included in your" +
                 " distribution of Snake.");
         // Show the dialog
