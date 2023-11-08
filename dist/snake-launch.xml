@@ -26,14 +26,15 @@
     <maxVersion>10.0.99</maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
+	<opt>-Dsun.java2d.opengl=True</opt>
   </jre>
   <versionInfo>
-    <fileVersion>1.2.1.0</fileVersion>
-    <txtFileVersion>1.2.1</txtFileVersion>
+    <fileVersion>1.2.1.1</fileVersion>
+    <txtFileVersion>1.2.1.1</txtFileVersion>
     <fileDescription>Snake Game</fileDescription>
-    <copyright>(C) Sam Haskins 2020</copyright>
-    <productVersion>1.2.1.0</productVersion>
-    <txtProductVersion>1.2.1</txtProductVersion>
+    <copyright>(C) Sam Haskins 2023</copyright>
+    <productVersion>1.2.1.1</productVersion>
+    <txtProductVersion>1.2.1.1</txtProductVersion>
     <productName>Snake Game</productName>
     <companyName>Sam Haskins</companyName>
     <internalName>Snake</internalName>

@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
     <Product Name='Snake' Manufacturer='Sam Haskins'
-        Id='6C45A1AC-6D63-40B0-868E-C7E93279AA2D' 
+        Id='67B61500-C03B-40B8-ABB1-222A1F8A5D48' 
         UpgradeCode='1E0FDBED-5A06-4802-9563-F5CEFE39512D'
-        Language='1033' Codepage='1252' Version='1.2.1'>
+        Language='1033' Codepage='1252' Version='1.2.1.1'>
 		
-		<Package Id='*' Description="Sam Haskins's Snake 1.2.1 Installer"
+		<Package Id='*' Description="Sam Haskins's Snake 1.2.1.1 Installer"
 			Manufacturer='Sam Haskins' InstallerVersion='200' Languages='1033'
 			Compressed='yes' SummaryCodepage='1252' />
 		<MajorUpgrade
